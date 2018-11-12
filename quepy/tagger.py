@@ -7,15 +7,19 @@
 # Authors: Rafael Carrascosa <rcarrascosa@machinalis.com>
 #          Gonzalo Garcia Berrotaran <ggarcia@machinalis.com>
 
+from __future__ import absolute_import, unicode_literals
+
+from future.utils import python_2_unicode_compatible
+from builtins import str
+
 import logging
 
-from quepy import settings
-from quepy.encodingpolicy import assert_valid_encoding
+from . import settings
 
 logger = logging.getLogger("quepy.tagger")
-PENN_TAGSET = set(u"$ `` '' ( ) , -- . : CC CD DT EX FW IN JJ JJR JJS LS MD "
-                  "NN NNP NNPS NNS PDT POS PRP PRP$ RB RBR RBS RP SYM TO UH "
-                  "VB VBD VBG VBN VBP VBZ WDT WP WP$ WRB".split())
+PENN_TAGSET = set("$ `` '' ( ) , -- . : CC CD DT EX FW IN JJ JJR JJS LS MD "
+    "NN NNP NNPS NNS PDT POS PRP PRP$ RB RBR RBS RP SYM TO UH "
+    "VB VBD VBG VBN VBP VBZ WDT WP WP$ WRB".split())
 
 
 class TaggingError(Exception):
@@ -25,35 +29,65 @@ class TaggingError(Exception):
     pass
 
 
+@python_2_unicode_compatible
 class Word(object):
     """
     Representation of a tagged word.
     Contains *token*, *lemma*, *pos tag* and optionally a *probability* of
     that tag.
     """
-    _encoding_attrs = u"token lemma pos".split()
-    _attrs = _encoding_attrs + [u"prob"]
+
+    __slots__ = ("_token", "_lemma", "_pos", "prob")
 
     def __init__(self, token, lemma=None, pos=None, prob=None):
+
+        self.token = token
+        self.lemma = lemma
         self.pos = pos
         self.prob = prob
-        self.lemma = lemma
-        self.token = token
 
-    def __setattr__(self, name, value):
-        if name in self._encoding_attrs and value is not None:
-            assert_valid_encoding(value)
-        object.__setattr__(self, name, value)
-
-    def __unicode__(self):
-        attrs = (getattr(self, name, u"-") for name in self._attrs)
-        return u"|".join(str(x) for x in attrs)
+    def __str__(self):
+        return "|".join([self._token, self._lemma, self._pos, self.prob])
 
     def __repr__(self):
-        return unicode(self)
+        return str(self)
 
+    @property
+    def token(self):
+        return self._token
+
+    @token.setter
+    def token(self, value):
+        if not isinstance(value, str):
+            raise TypeError("Input must be str, not {}".format(type(value)))
+
+        self._token = value
+
+    @property
+    def lemma(self):
+        return self._lemma
+
+    @lemma.setter
+    def lemma(self, value):
+        if value and not isinstance(value, str):
+            raise TypeError("Input must be str, not {}".format(type(value)))
+
+        self._lemma = value
+
+    @property
+    def pos(self):
+        return self._pos
+
+    @pos.setter
+    def pos(self, value):
+        if value and not isinstance(value, str):
+            raise TypeError("Input must be str, not {}".format(type(value)))
+
+        self._pos = value
 
 def get_tagger():
+    # type: () -> Callable
+
     """
     Return a tagging function given some app settings.
     `Settings` is the settings module of an app.
@@ -64,11 +98,11 @@ def get_tagger():
     tagger_function = lambda x: run_nltktagger(x, settings.NLTK_DATA_PATH)
 
     def wrapper(string):
-        assert_valid_encoding(string)
+        # type: (str, ) -> List[str]
+
         words = tagger_function(string)
         for word in words:
             if word.pos not in PENN_TAGSET:
-                logger.warning("Tagger emmited a non-penn "
-                               "POS tag {!r}".format(word.pos))
+                logger.warning("Tagger emmited a non-penn POS tag {!r}".format(word.pos))
         return words
     return wrapper

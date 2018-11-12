@@ -8,6 +8,8 @@
 # Authors: Rafael Carrascosa <rcarrascosa@machinalis.com>
 #          Gonzalo Garcia Berrotaran <ggarcia@machinalis.com>
 
+from __future__ import absolute_import, unicode_literals
+
 """
 Tests for nltktagger.
 """
@@ -19,12 +21,15 @@ from quepy.tagger import Word
 
 class TestNLTKTagger(unittest.TestCase):
     def test_word_output(self):
-        output = nltktagger.run_nltktagger(u"this is a test case «¢ðßæŋħħ")
+        output = nltktagger.run_nltktagger("this is a test case «¢ðßæŋħħ")
 
         self.assertIsInstance(output, list)
         for word in output:
             self.assertIsInstance(word, Word)
 
     def tests_wrong_input(self):
-        self.assertRaises(ValueError, nltktagger.run_nltktagger,
-                          "this is not unicode")
+        self.assertRaises(TypeError, nltktagger.run_nltktagger, b"this is not unicode")
+
+
+if __name__ == "__main__":
+    unittest.main()

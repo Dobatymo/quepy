@@ -8,13 +8,49 @@
 # Authors: Rafael Carrascosa <rcarrascosa@machinalis.com>
 #          Gonzalo Garcia Berrotaran <ggarcia@machinalis.com>
 
+from __future__ import absolute_import, unicode_literals
+
 """
 Tests for expressions.
 """
 
+from builtins import str, range
+
 import unittest
 from quepy.expression import Expression, isnode
 
+try:
+	from collections import Iterable
+except ImportError:
+	from collections.abc import Iterable
+
+class Optional(object):
+
+	def __init__(self, value):
+		self.value = value
+
+	def __repr__(self):
+		return "<Optional " + repr(self.value) + ">"
+
+	def __eq__(self, other):
+		return self.value == other.value
+
+	def __lt__(self, other):
+
+		a = self.value
+		b = other.value
+
+		if a is None:
+			return True
+		if b is None:
+			return False
+
+		if not isinstance(a, str) and isinstance(a, Iterable):
+			a = tuple(map(Optional, a))
+		if not isinstance(b, str) and isinstance(b, Iterable):
+			b = tuple(map(Optional, b))
+
+		return a < b
 
 def make_canonical_expression(e):
     i = 0
@@ -35,7 +71,7 @@ def make_canonical_expression(e):
             if isnode(child):
                 child = canon[child]
             childs.append((label, child))
-        childs.sort()
+        childs.sort(key=Optional)
         canon[node] = tuple(childs)
     return canon[e.get_head()]
 
@@ -57,7 +93,7 @@ class ExpressionTests(object):
         self.assertNotEqual(len(self.e), 0)
 
     def test_add_data(self):
-        rel = u"|@·~½"
+        rel = "|@·~½"
         data = "somedata"
         self.e.add_data(rel, data)
         xs = list(self.e.iter_edges(self.e.get_head()))
@@ -121,7 +157,7 @@ class TestExpression2(unittest.TestCase, ExpressionTests):
         self.e = Expression()
         self.e.add_data("key", "1")
         self.e.add_data("key", "2")
-        self.e.add_data(u"~·~··@↓", None)
+        self.e.add_data("~·~··@↓", None)
         self.e.add_data(None, None)
 
 
@@ -129,7 +165,7 @@ class TestExpression3(unittest.TestCase, ExpressionTests):
     def setUp(self):
         self.e = Expression()
         self.e.add_data("key", "1")
-        self.e.decapitate(u"µ")
+        self.e.decapitate("µ")
         self.e.add_data("a", "2")
         self.e.add_data("a", "3")
         self.e.add_data(None, None)
@@ -145,7 +181,7 @@ class TestExpression4(unittest.TestCase, ExpressionTests):
         other.add_data(0, "1")
         other.add_data(2, "3")
         other.decapitate("iuju")
-        for _ in xrange(5):
+        for _ in range(5):
             self.e.decapitate("nouu")
             self.e += other
 
@@ -237,14 +273,14 @@ class TestCanon97(unittest.TestCase, CanonNotEqualTest):
         other = Expression()
         other.decapitate("onelevel")
         self.a = Expression()
-        for _ in xrange(5):
+        for _ in range(5):
             self.a.decapitate("step")
             self.a += other
 
         other = Expression()
         other.decapitate("onelevel", reverse=True)
         self.b = Expression()
-        for _ in xrange(5):
+        for _ in range(5):
             self.b.decapitate("step")
             self.b += other
 
@@ -255,7 +291,7 @@ class TestCanon98(unittest.TestCase, CanonNotEqualTest):
         other.add_data(0, "data")
         other.decapitate("onelevel")
         self.a = Expression()
-        for _ in xrange(5):
+        for _ in range(5):
             self.a.decapitate("step")
             self.a += other
 
@@ -263,7 +299,7 @@ class TestCanon98(unittest.TestCase, CanonNotEqualTest):
         other.add_data(0, "data")
         other.decapitate("onelevel", reverse=True)
         self.b = Expression()
-        for _ in xrange(5):
+        for _ in range(5):
             self.b.decapitate("step")
             self.b += other
 

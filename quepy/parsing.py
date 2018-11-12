@@ -7,11 +7,12 @@
 # Authors: Rafael Carrascosa <rcarrascosa@machinalis.com>
 #          Gonzalo Garcia Berrotaran <ggarcia@machinalis.com>
 
+from __future__ import absolute_import, unicode_literals
+from future.utils import python_2_unicode_compatible
+
 import refo
 import logging
 from refo import Predicate, Literal, Star, Any, Group
-
-from quepy.encodingpolicy import encoding_flexible_conversion
 
 _EOL = None
 logger = logging.getLogger("quepy.parsing")
@@ -35,11 +36,11 @@ class WordList(list):
 
     @property
     def tokens(self):
-        return " ".join([x.token for x in self])
+        return " ".join(x.token for x in self)
 
     @property
     def lemmas(self):
-        return " ".join([x.lemma for x in self])
+        return " ".join(x.lemma for x in self)
 
 
 class Match(object):
@@ -107,7 +108,7 @@ class QuestionTemplate(object):
 
     def get_interpretation(self, words):
         rulename = self.__class__.__name__
-        logger.debug("Trying to match with regex: {}".format(rulename))
+        logger.debug("Trying to match with regex: %s", rulename)
 
         match = refo.match(self.regex + Literal(_EOL), words + [_EOL])
 
@@ -136,7 +137,6 @@ class Pos(Predicate):
     """
 
     def __init__(self, tag):
-        tag = encoding_flexible_conversion(tag)
         self.tag = tag
         super(Pos, self).__init__(self._predicate)
         self.arg = tag
@@ -166,6 +166,7 @@ class Token(Pos):
         return word.token == self.tag
 
 
+@python_2_unicode_compatible
 class Particle(Group):
     regex = None
 
@@ -196,7 +197,6 @@ class Particle(Group):
 def _predicate_sum_from_string(string, predicate):
     assert issubclass(predicate, Predicate)
 
-    string = encoding_flexible_conversion(string)
     words = string.split()
     result = None
     for word in words:

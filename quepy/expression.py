@@ -7,6 +7,8 @@
 # Authors: Rafael Carrascosa <rcarrascosa@machinalis.com>
 #          Gonzalo Garcia Berrotaran <ggarcia@machinalis.com>
 
+from __future__ import absolute_import, unicode_literals
+
 """
 This file implements the ``Expression`` class.
 
@@ -87,6 +89,7 @@ The reasons are:
       (I do)).
 """
 
+from builtins import range
 
 from collections import defaultdict
 from copy import deepcopy
@@ -159,7 +162,6 @@ class Expression(object):
         Expression.
         ``value`` is recommended be of type:
         - ``unicode``
-        - ``str`` and can be decoded using the default encoding (settings.py)
         - A custom class that implements a ``__unicode__`` method.
         - It can *NEVER* be an ``int``.
 
@@ -174,7 +176,7 @@ class Expression(object):
         """
         Iterates the indexes (the unique identifiers) of the Expression nodes.
         """
-        return xrange(len(self.nodes))
+        return range(len(self.nodes))
 
     def iter_edges(self, node):
         """

@@ -7,36 +7,46 @@
 # Authors: Rafael Carrascosa <rcarrascosa@machinalis.com>
 #          Gonzalo Garcia Berrotaran <ggarcia@machinalis.com>
 
+from __future__ import absolute_import, unicode_literals
+
 """
 Tagging using NLTK.
 """
 
-# Requiered data files are:
+# Required data files are:
 #   - "averaged_perceptron_tagger" in Models
 #   - "wordnet" in Corpora
 
+from builtins import str, bytes
+from future.utils import iteritems
+
 import nltk
-from quepy.tagger import Word
-from quepy.encodingpolicy import assert_valid_encoding
+
+from .tagger import Word
 
 _penn_to_morphy_tag = {}
 
 
 def penn_to_morphy_tag(tag):
-    assert_valid_encoding(tag)
+    # type: (str, ) -> Optional[str]
 
-    for penn, morphy in _penn_to_morphy_tag.iteritems():
+    for penn, morphy in iteritems(_penn_to_morphy_tag):
         if tag.startswith(penn):
             return morphy
     return None
 
 
 def run_nltktagger(string, nltk_data_path=None):
+    # type: (str, bool) -> List[str]
+
     """
     Runs nltk tagger on `string` and returns a list of
     :class:`quepy.tagger.Word` objects.
     """
-    assert_valid_encoding(string)
+
+    if not isinstance(string, str):
+        raise TypeError("Input must be a unicode string")
+
     global _penn_to_morphy_tag
 
     if nltk_data_path:
@@ -46,10 +56,10 @@ def run_nltktagger(string, nltk_data_path=None):
 
     if not _penn_to_morphy_tag:
         _penn_to_morphy_tag = {
-            u'NN': wordnet.NOUN,
-            u'JJ': wordnet.ADJ,
-            u'VB': wordnet.VERB,
-            u'RB': wordnet.ADV,
+            'NN': wordnet.NOUN,
+            'JJ': wordnet.ADJ,
+            'VB': wordnet.VERB,
+            'RB': wordnet.ADV,
         }
 
     # Recommended tokenizer doesn't handle non-ascii characters very well
@@ -62,17 +72,11 @@ def run_nltktagger(string, nltk_data_path=None):
         word = Word(token)
         # Eliminates stuff like JJ|CC
         # decode ascii because they are the penn-like POS tags (are ascii).
-        word.pos = pos.split("|")[0].decode("ascii")
+        word.pos = pos.split("|")[0]
 
         mtag = penn_to_morphy_tag(word.pos)
         # Nice shooting, son. What's your name?
-        lemma = wordnet.morphy(word.token, pos=mtag)
-        if isinstance(lemma, str):
-            # In this case lemma is example-based, because if it's rule based
-            # the result should be unicode (input was unicode).
-            # Since english is ascii the decoding is ok.
-            lemma = lemma.decode("ascii")
-        word.lemma = lemma
+        word.lemma = wordnet.morphy(word.token, pos=mtag)
         if word.lemma is None:
             word.lemma = word.token.lower()
 

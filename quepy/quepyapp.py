@@ -7,19 +7,22 @@
 # Authors: Rafael Carrascosa <rcarrascosa@machinalis.com>
 #          Gonzalo Garcia Berrotaran <ggarcia@machinalis.com>
 
+from __future__ import absolute_import, unicode_literals
+
 """
 Implements the Quepy Application API
 """
 
+from future.utils import iteritems
+
 import logging
 from importlib import import_module
+from operator import attrgetter
 from types import ModuleType
 
-from quepy import settings
-from quepy import generation
-from quepy.parsing import QuestionTemplate
-from quepy.tagger import get_tagger, TaggingError
-from quepy.encodingpolicy import encoding_flexible_conversion
+from . import settings, generation
+from .parsing import QuestionTemplate
+from .tagger import get_tagger, TaggingError
 
 logger = logging.getLogger("quepy.quepyapp")
 
@@ -30,16 +33,16 @@ def install(app_name):
     """
 
     module_paths = {
-        u"settings": u"{0}.settings",
-        u"parsing": u"{0}",
+        "settings": "{0}.settings",
+        "parsing": "{0}",
     }
     modules = {}
 
-    for module_name, module_path in module_paths.iteritems():
+    for module_name, module_path in iteritems(module_paths):
         try:
             modules[module_name] = import_module(module_path.format(app_name))
-        except ImportError, error:
-            message = u"Error importing {0!r}: {1}"
+        except ImportError as error:
+            message = "Error importing {0!r}: {1}"
             raise ImportError(message.format(module_name, error))
 
     return QuepyApp(**modules)
@@ -87,7 +90,7 @@ class QuepyApp(object):
             except TypeError:
                 continue
 
-        self.rules.sort(key=lambda x: x.weight, reverse=True)
+        self.rules.sort(key=attrgetter("weight"), reverse=True)
 
     def get_query(self, question):
         """
@@ -119,13 +122,10 @@ class QuepyApp(object):
         The queries returned corresponds to the regexes that match in
         weight order.
         """
-        question = encoding_flexible_conversion(question)
         for expression, userdata in self._iter_compiled_forms(question):
             target, query = generation.get_code(expression, self.language)
-            message = u"Interpretation {1}: {0}"
-            logger.debug(message.format(str(expression),
-                         expression.rule_used))
-            logger.debug(u"Query generated: {0}".format(query))
+            logger.debug("Interpretation %s: %s", expression.rule_used, expression)
+            logger.debug("Query generated: %s", query)
             yield target, query, userdata
 
     def _iter_compiled_forms(self, question):
@@ -136,12 +136,11 @@ class QuepyApp(object):
         try:
             words = list(self.tagger(question))
         except TaggingError:
-            logger.warning(u"Can't parse tagger's output for: '%s'",
-                           question)
+            logger.warning("Can't parse tagger's output for: '%s'", question)
             return
 
-        logger.debug(u"Tagged question:\n" +
-                     u"\n".join(u"\t{}".format(w for w in words)))
+        logger.debug("Tagged question:\n" +
+                     "\n".join("\t{}".format(w for w in words)))
 
         for rule in self.rules:
             expression, userdata = rule.get_interpretation(words)
@@ -151,12 +150,10 @@ class QuepyApp(object):
     def _save_settings_values(self):
         """
         Persists the settings values of the app to the settings module
-        so it can be accesible from another part of the software.
+        so it can be accessible from another part of the software.
         """
 
         for key in dir(self._settings_module):
             if key.upper() == key:
                 value = getattr(self._settings_module, key)
-                if isinstance(value, str):
-                    value = encoding_flexible_conversion(value)
                 setattr(settings, key, value)

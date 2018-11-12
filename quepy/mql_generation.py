@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import, unicode_literals
+from builtins import str, bytes
+
 import re
 import json
-from quepy.dsl import IsRelatedTo
-from quepy.expression import isnode
-from quepy.encodingpolicy import encoding_flexible_conversion
+
+from .dsl import IsRelatedTo
+from .expression import isnode
 
 
 def choose_start_node(e):
@@ -25,13 +28,11 @@ def safely_to_unicode(x):
     Given an "edge" (a relation) or "a data" from an `Expression` graph
     transform it into a unicode string fitted for insertion into a MQL query.
     """
-    if isinstance(x, unicode):
-        return x
     if isinstance(x, str):
-        return encoding_flexible_conversion(x)
+        return x
     if isinstance(x, IsRelatedTo):
-        return u"/type/reflect/any_master"
-    return unicode(x)  # FIXME: Any object is unicode-able, this is error prone
+        return "/type/reflect/any_master"
+    return str(x)  # FIXME: Any object is unicode-able, this is error prone
 
 
 def to_bidirected_graph(e):
@@ -45,7 +46,7 @@ def to_bidirected_graph(e):
         for relation, other in e.iter_edges(node):
             relation = safely_to_unicode(relation)
             if isnode(other):
-                graph[other].append((u"!" + relation, node))
+                graph[other].append(("!" + relation, node))
             else:
                 other = safely_to_unicode(other)
             graph[node].append((relation, other))
@@ -114,8 +115,7 @@ def generate_mql(e):
             d[relation] = other
         generated[node] = [d]
 
-    mql_query = json.dumps(generated[start], sort_keys=True,
-                            indent=2, separators=(',', ': '))
+    mql_query = json.dumps(generated[start], sort_keys=True, indent=2, separators=(',', ': '))
     mql_query = _tidy(mql_query)
     target = paths_from_root(graph, start)[e.get_head()]
     return target, mql_query
@@ -137,5 +137,4 @@ def _tidy(mql):
         if match:
             indent = len(match.group(1))
         return " " * indent + "}]"
-    return re.sub("\[\s*{\s*}\s*\]|\[\s+{|[ \t]*}\s+\]",
-                  replacement_function, mql)
+    return re.sub("\[\s*{\s*}\s*\]|\[\s+{|[ \t]*}\s+\]", replacement_function, mql)

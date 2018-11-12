@@ -8,13 +8,14 @@
 # Authors: Rafael Carrascosa <rcarrascosa@machinalis.com>
 #          Gonzalo Garcia Berrotaran <ggarcia@machinalis.com>
 
+from __future__ import absolute_import, unicode_literals
+
 """
 Domain specific language definitions.
 """
 
 from copy import copy
 from quepy.expression import Expression
-from quepy.encodingpolicy import encoding_flexible_conversion
 
 
 class FixedRelation(Expression):
@@ -31,8 +32,7 @@ class FixedRelation(Expression):
             reverse = self.reverse
         super(FixedRelation, self).__init__()
         if self.relation is None:
-            raise ValueError("You *must* define the `relation` "
-                             "class attribute to use this class.")
+            raise ValueError("You *must* define the `relation` class attribute to use this class.")
         self.nodes = copy(destination.nodes)
         self.head = destination.head
         self.decapitate(self.relation, reverse)
@@ -45,16 +45,12 @@ class FixedType(Expression):
     """
 
     fixedtype = None
-    fixedtyperelation = u"rdf:type"  # FIXME: sparql specific
+    fixedtyperelation = "rdf:type"  # FIXME: sparql specific
 
     def __init__(self):
         super(FixedType, self).__init__()
         if self.fixedtype is None:
-            raise ValueError("You *must* define the `fixedtype` "
-                             "class attribute to use this class.")
-        self.fixedtype = encoding_flexible_conversion(self.fixedtype)
-        self.fixedtyperelation = \
-            encoding_flexible_conversion(self.fixedtyperelation)
+            raise ValueError("You *must* define the `fixedtype` class attribute to use this class.")
         self.add_data(self.fixedtyperelation, self.fixedtype)
 
 
@@ -70,12 +66,9 @@ class FixedDataRelation(Expression):
     def __init__(self, data):
         super(FixedDataRelation, self).__init__()
         if self.relation is None:
-            raise ValueError("You *must* define the `relation` "
-                             "class attribute to use this class.")
-        self.relation = encoding_flexible_conversion(self.relation)
+            raise ValueError("You *must* define the `relation` class attribute to use this class.")
         if self.language is not None:
-            self.language = encoding_flexible_conversion(self.language)
-            data = u"\"{0}\"@{1}".format(data, self.language)
+            data = "\"{0}\"@{1}".format(data, self.language)
         self.add_data(self.relation, data)
 
 
@@ -84,7 +77,7 @@ class HasKeyword(FixedDataRelation):
     Abstraction of an information retrieval key, something standarized used
     to look up things in the database.
     """
-    relation = u"quepy:Keyword"
+    relation = "quepy:Keyword"
 
     def __init__(self, data):
         data = self.sanitize(data)

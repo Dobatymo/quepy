@@ -1,2 +1,10 @@
-*.pyc
+*.bak
+*.bat
+
+# python stuff
+__pycache__/
+*.py[cod]
+*.egg-info
+build/
+dist/
 docs/_build/

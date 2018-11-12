@@ -7,6 +7,8 @@
 # Authors: Rafael Carrascosa <rcarrascosa@machinalis.com>
 #          Gonzalo Garcia Berrotaran <ggarcia@machinalis.com>
 
+from __future__ import absolute_import, unicode_literals
+
 """
 Code generation from an expression to a database language.
 
@@ -16,9 +18,9 @@ The currently supported languages are:
     * Dot: generation of graph images mainly for debugging.
 """
 
-from quepy.mql_generation import generate_mql
-from quepy.dot_generation import expression_to_dot
-from quepy.sparql_generation import expression_to_sparql
+from .mql_generation import generate_mql
+from .dot_generation import expression_to_dot
+from .sparql_generation import expression_to_sparql
 
 
 def get_code(expression, language):
@@ -34,5 +36,4 @@ def get_code(expression, language):
     elif language == "mql":
         return generate_mql(expression)
     else:
-        message = u"Language '{}' is not supported"
-        raise ValueError(message.format(language))
+        raise ValueError("Language '{}' is not supported".format(language))
