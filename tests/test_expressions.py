@@ -20,37 +20,37 @@ import unittest
 from quepy.expression import Expression, isnode
 
 try:
-	from collections import Iterable
+    from collections import Iterable
 except ImportError:
-	from collections.abc import Iterable
+    from collections.abc import Iterable
 
 class Optional(object):
 
-	def __init__(self, value):
-		self.value = value
+    def __init__(self, value):
+        self.value = value
 
-	def __repr__(self):
-		return "<Optional " + repr(self.value) + ">"
+    def __repr__(self):
+        return "<Optional " + repr(self.value) + ">"
 
-	def __eq__(self, other):
-		return self.value == other.value
+    def __eq__(self, other):
+        return self.value == other.value
 
-	def __lt__(self, other):
+    def __lt__(self, other):
 
-		a = self.value
-		b = other.value
+        a = self.value
+        b = other.value
 
-		if a is None:
-			return True
-		if b is None:
-			return False
+        if a is None:
+            return True
+        if b is None:
+            return False
 
-		if not isinstance(a, str) and isinstance(a, Iterable):
-			a = tuple(map(Optional, a))
-		if not isinstance(b, str) and isinstance(b, Iterable):
-			b = tuple(map(Optional, b))
+        if not isinstance(a, str) and isinstance(a, Iterable):
+            a = tuple(map(Optional, a))
+        if not isinstance(b, str) and isinstance(b, Iterable):
+            b = tuple(map(Optional, b))
 
-		return a < b
+        return a < b
 
 def make_canonical_expression(e):
     i = 0

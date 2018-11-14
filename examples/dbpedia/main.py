@@ -8,6 +8,8 @@
 # Authors: Rafael Carrascosa <rcarrascosa@machinalis.com>
 #          Gonzalo Garcia Berrotaran <ggarcia@machinalis.com>
 
+from __future__ import absolute_import, unicode_literals
+
 """
 Main script for DBpedia quepy.
 """
@@ -37,7 +39,7 @@ def print_enum(results, target, metadata=None):
     used_labels = []
 
     for result in results["results"]["bindings"]:
-        if result[target]["type"] == u"literal":
+        if result[target]["type"] == "literal":
             if result[target]["xml:lang"] == "en":
                 label = result[target]["value"]
                 if label not in used_labels:
@@ -59,7 +61,7 @@ def print_time(results, target, metadata=None):
     gmt = datetime.datetime.fromtimestamp(gmt)
 
     for result in results["results"]["bindings"]:
-        offset = result[target]["value"].replace(u"−", u"-")
+        offset = result[target]["value"].replace("−", "-")
 
         if ("to" in offset) or ("and" in offset):
             if "to" in offset:

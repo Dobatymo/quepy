@@ -11,8 +11,8 @@
 Basic questions for Freebase.
 """
 
+from .dsl import DefinitionOf, NameOf, LocationOf
 from refo import Question, Plus
-from dsl import DefinitionOf, NameOf, LocationOf
 from quepy.dsl import HasKeyword
 from quepy.parsing import QuestionTemplate, Particle, Lemma, Pos, Lemmas
 
