@@ -28,6 +28,22 @@ class TaggingError(Exception):
     """
     pass
 
+class run_spacytagger(object):
+
+	def __init__(self):
+		import spacy
+		self.nlp = spacy.load("en")
+
+	@staticmethod
+	def convert_to_quepy(doc):
+		for ent in doc:
+			w = Word(ent.text)
+			w.pos = ent.tag_
+			w.lemma = ent.lemma_
+			yield w
+
+	def __call__(self, string):
+		return list(self.convert_to_quepy(self.nlp(string)))
 
 @python_2_unicode_compatible
 class Word(object):
@@ -91,11 +107,14 @@ def get_tagger():
     """
     Return a tagging function given some app settings.
     `Settings` is the settings module of an app.
-    The returned value is a function that receives a unicode string and returns
+    The returned value is a function that receives a string and returns
     a list of `Word` instances.
     """
-    from quepy.nltktagger import run_nltktagger
-    tagger_function = lambda x: run_nltktagger(x, settings.NLTK_DATA_PATH)
+
+    from quepy.nltktagger import run_nltktagger as pos_tagger
+    # pos_tagger = run_spacytagger
+
+    tagger_function = pos_tagger(settings.NLTK_DATA_PATH)
 
     def wrapper(string):
         # type: (str, ) -> List[str]
@@ -103,6 +122,6 @@ def get_tagger():
         words = tagger_function(string)
         for word in words:
             if word.pos not in PENN_TAGSET:
-                logger.warning("Tagger emmited a non-penn POS tag {!r}".format(word.pos))
+                logger.warning("Tagger emitted a non-penn POS tag {!r}".format(word.pos))
         return words
     return wrapper

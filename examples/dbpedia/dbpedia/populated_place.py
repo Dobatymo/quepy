@@ -14,8 +14,7 @@ Populated place related regex
 from refo import Plus, Question
 from quepy.dsl import HasKeyword
 from quepy.parsing import Lemma, Pos, QuestionTemplate, Token, Particle
-from .dsl import IsPopulatedPlace, IncumbentOf, CapitalOf, \
-    LabelOf, PopulationOf
+from .dsl import IsPopulatedPlace, IncumbentOf, CapitalOf, LabelOf, PopulationOf, AreaOf
 
 
 class PopulatedPlace(Particle):
@@ -58,3 +57,13 @@ class PopulationOfQuestion(QuestionTemplate):
     def interpret(self, match):
         population = PopulationOf(match.populatedplace)
         return population, "literal"
+
+class AreaOfQuestion(QuestionTemplate):
+    openings = (Pos("WP") + Token("is") + Pos("DT") + Lemma("area") + Pos("IN")) | \
+               (Pos("WRB") + Lemma("large") + Token("is"))
+
+    regex = openings + Question(Pos("DT")) + PopulatedPlace() + Question(Pos("."))
+
+    def interpret(self, match):
+        area = AreaOf(match.populatedplace)
+        return area, "area"

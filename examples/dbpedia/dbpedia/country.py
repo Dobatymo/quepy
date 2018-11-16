@@ -13,9 +13,8 @@ Country related regex
 
 from refo import Plus, Question
 from quepy.dsl import HasKeyword
-from quepy.parsing import Lemma, Pos, QuestionTemplate, Token, Particle
-from .dsl import IsCountry, IncumbentOf, CapitalOf, \
-    LabelOf, LanguageOf, PopulationOf, PresidentOf
+from quepy.parsing import Lemma, Pos, QuestionTemplate, Token, Particle, Lemmas
+from .dsl import IsCountry, IncumbentOf, IncumbentSinceOf, CapitalOf, LeaderOf, LabelOf, LanguageOf, OfficialLanguageOf, PopulationOf, AreaOf
 
 
 class Country(Particle):
@@ -26,21 +25,31 @@ class Country(Particle):
         return IsCountry() + HasKeyword(name)
 
 
-class PresidentOfQuestion(QuestionTemplate):
+class LeaderOfQuestion(QuestionTemplate):
     """
-    Regex for questions about the president of a country.
-    Ex: "Who is the president of Argentina?"
+    Regex for questions about the leader of a country.
+    Ex: "Who is the leader of Argentina?"
     """
 
     regex = Pos("WP") + Token("is") + Question(Pos("DT")) + \
-        Lemma("president") + Pos("IN") + Country() + Question(Pos("."))
+        (Lemma("leader")|Lemma("president")) + Pos("IN") + Country() + Question(Pos("."))
 
     def interpret(self, match):
-        president = PresidentOf(match.country)
-        incumbent = IncumbentOf(president)
-        label = LabelOf(incumbent)
+        office = LeaderOf(match.country)
+        incumbent = IncumbentOf(office)
+        name = LabelOf(incumbent)
 
-        return label, "enum"
+        return name, "enum"
+
+class LeaderSinceQuestion(QuestionTemplate):
+    regex = Lemmas("Since when is the current leader of") + Country() + Lemmas("in office") + Question(Pos("."))
+
+    def interpret(self, match):
+        office = LeaderOf(match.country)
+        incumbentsince = IncumbentSinceOf(office)
+        since = LabelOf(incumbentsince)
+
+        return since, "literal"
 
 
 class CapitalOfQuestion(QuestionTemplate):
@@ -59,8 +68,25 @@ class CapitalOfQuestion(QuestionTemplate):
         return label, "enum"
 
 
-# FIXME: the generated query needs FILTER isLiteral() to the head
-# because dbpedia sometimes returns different things
+class OfficialLanguageOfQuestion(QuestionTemplate):
+    """
+    Regex for questions about the language spoken in a country.
+    Ex: "What is the language of Argentina?"
+        "what language is spoken in Argentina?"
+    """
+
+    openings = (Lemma("what") + Token("is") + Pos("DT") + Lemma("official") + Lemma("language")) | \
+               (Lemma("what") + Lemma("language") + Token("is") + Lemma("speak"))
+
+    regex = openings + Pos("IN") + Question(Pos("DT")) + Country() + \
+        Question(Pos("."))
+
+    def interpret(self, match):
+        language = OfficialLanguageOf(match.country)
+        label = LabelOf(language)
+        return label, "enum"
+
+
 class LanguageOfQuestion(QuestionTemplate):
     """
     Regex for questions about the language spoken in a country.
@@ -68,17 +94,16 @@ class LanguageOfQuestion(QuestionTemplate):
         "what language is spoken in Argentina?"
     """
 
-    openings = (Lemma("what") + Token("is") + Pos("DT") +
-                Question(Lemma("official")) + Lemma("language")) | \
-               (Lemma("what") + Lemma("language") + Token("is") +
-                Lemma("speak"))
+    openings = (Lemma("what") + Token("is") + Pos("DT") + Lemma("language")) | \
+               (Lemma("what") + Lemma("language") + Token("is") + Lemma("speak"))
 
     regex = openings + Pos("IN") + Question(Pos("DT")) + Country() + \
         Question(Pos("."))
 
     def interpret(self, match):
         language = LanguageOf(match.country)
-        return language, "enum"
+        label = LabelOf(language)
+        return label, "enum"
 
 
 class PopulationOfQuestion(QuestionTemplate):
@@ -97,3 +122,10 @@ class PopulationOfQuestion(QuestionTemplate):
     def interpret(self, match):
         population = PopulationOf(match.country)
         return population, "literal"
+
+class AreaOfQuestion(QuestionTemplate):
+    regex = Pos("WP") + Token("is") + Pos("DT") + Lemma("area") + Pos("IN") + Question(Pos("DT")) + Country() + Question(Pos("."))
+
+    def interpret(self, match):
+        area = AreaOf(match.country)
+        return area, "area"

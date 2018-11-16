@@ -62,7 +62,7 @@ class MoviesByDirectorQuestion(QuestionTemplate):
     """
     Ex: "List movies directed by Quentin Tarantino.
         "movies directed by Martin Scorsese"
-        "which movies did Mel Gibson directed"
+        "which movies did Mel Gibson direct"
     """
 
     regex = (Question(Lemma("list")) + (Lemma("movie") | Lemma("film")) +

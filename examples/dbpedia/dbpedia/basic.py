@@ -14,8 +14,7 @@ Basic questions for DBpedia.
 from refo import Group, Plus, Question
 from quepy.parsing import Lemma, Pos, QuestionTemplate, Token, Particle, Lemmas
 from quepy.dsl import HasKeyword, IsRelatedTo, HasType
-from .dsl import DefinitionOf, LabelOf, IsPlace, \
-    UTCof, LocationOf
+from .dsl import DefinitionOf, LabelOf, IsPlace, UTCof, LocationOf
 
 
 # Openings
@@ -91,8 +90,7 @@ class WhereIsQuestion(QuestionTemplate):
     Ex: "where in the world is the Eiffel Tower"
     """
 
-    thing = Group(Plus(Pos("IN") | Pos("NP") | Pos("NNP") | Pos("NNPS")),
-                  "thing")
+    thing = Group(Plus(Pos("IN") | Pos("NP") | Pos("NNP") | Pos("NNPS")), "thing")
     regex = Lemma("where") + Question(Lemmas("in the world")) + Lemma("be") + \
         Question(Pos("DT")) + thing + Question(Pos("."))
 

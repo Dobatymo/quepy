@@ -74,7 +74,7 @@ class FixedDataRelation(Expression):
 
 class HasKeyword(FixedDataRelation):
     """
-    Abstraction of an information retrieval key, something standarized used
+    Abstraction of an information retrieval key, something standardized used
     to look up things in the database.
     """
     relation = "quepy:Keyword"
@@ -95,5 +95,6 @@ class HasType(FixedRelation):
 
 class IsRelatedTo(FixedRelation):
     pass
+
 # Looks weird, yes, here I am using `IsRelatedTo` as a unique identifier.
 IsRelatedTo.relation = IsRelatedTo

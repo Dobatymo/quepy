@@ -18,46 +18,55 @@ HasKeyword.relation = "rdfs:label"
 HasKeyword.language = "en"
 
 
+class IsBook(FixedType):
+    fixedtype = "dbo:Book"
+
+
 class IsPerson(FixedType):
-    fixedtype = "foaf:Person"
+    fixedtype = "dbo:Person"
 
 
 class IsPlace(FixedType):
-    fixedtype = "dbpedia:Place"
+    fixedtype = "dbo:Place"
 
 
 class IsCountry(FixedType):
-    fixedtype = "dbpedia-owl:Country"
+    fixedtype = "dbo:Country"
 
 
 class IsPopulatedPlace(FixedType):
-    fixedtype = "dbpedia-owl:PopulatedPlace"
+    fixedtype = "dbo:PopulatedPlace"
 
 
 class IsBand(FixedType):
-    fixedtype = "dbpedia-owl:Band"
+    fixedtype = "dbo:Band"
 
 
 class IsAlbum(FixedType):
-    fixedtype = "dbpedia-owl:Album"
+    fixedtype = "dbo:Album"
 
 
 class IsTvShow(FixedType):
-    fixedtype = "dbpedia-owl:TelevisionShow"
+    fixedtype = "dbo:TelevisionShow"
 
 
 class IsMovie(FixedType):
-    fixedtype = "dbpedia-owl:Film"
+    fixedtype = "dbo:Film"
 
 
 class HasShowName(FixedDataRelation):
-    relation = "dbpprop:showName"
+    relation = "dbp:showName"
     language = "en"
 
 
 class HasName(FixedDataRelation):
-    relation = "dbpprop:name"
+    relation = "rdfs:label"
     language = "en"
+
+
+class NameOf(FixedRelation):
+    relation = "foaf:name"
+    reverse = True
 
 
 class DefinitionOf(FixedRelation):
@@ -71,129 +80,129 @@ class LabelOf(FixedRelation):
 
 
 class UTCof(FixedRelation):
-    relation = "dbpprop:utcOffset"
+    relation = "dbp:utcOffset"
     reverse = True
 
 
-class PresidentOf(FixedRelation):
-    relation = "dbpprop:leaderTitle"
+class LeaderOf(FixedRelation):
+    relation = "dbp:leaderTitle"
     reverse = True
 
 
 class IncumbentOf(FixedRelation):
-    relation = "dbpprop:incumbent"
+    relation = "dbp:incumbent"
     reverse = True
 
 
+class IncumbentSinceOf(FixedRelation):
+    relation = "dbp:incumbentsince"
+
+
 class CapitalOf(FixedRelation):
-    relation = "dbpedia-owl:capital"
+    relation = "dbo:capital"
+    reverse = True
+
+
+class OfficialLanguageOf(FixedRelation):
+    relation = "dbo:officialLanguage"
     reverse = True
 
 
 class LanguageOf(FixedRelation):
-    relation = "dbpprop:officialLanguages"
+    relation = "dbo:language"
     reverse = True
 
 
 class PopulationOf(FixedRelation):
-    relation = "dbpprop:populationCensus"
+    relation = "dbo:populationTotal" # was: "dbp:populationCensus"
     reverse = True
 
 
+class AreaOf(FixedRelation):
+    relation = "dbo:areaTotal"
+    reverse = True
+
 class IsMemberOf(FixedRelation):
-    relation = "dbpedia-owl:bandMember"
+    relation = "dbo:bandMember"
     reverse = True
 
 
 class ActiveYears(FixedRelation):
-    relation = "dbpprop:yearsActive"
+    relation = "dbp:yearsActive"
     reverse = True
 
 
 class MusicGenreOf(FixedRelation):
-    relation = "dbpedia-owl:genre"
+    relation = "dbo:genre"
     reverse = True
 
 
 class ProducedBy(FixedRelation):
-    relation = "dbpedia-owl:producer"
+    relation = "dbo:producer"
 
 
 class BirthDateOf(FixedRelation):
-    relation = "dbpprop:birthDate"
+    relation = "dbo:birthDate"
     reverse = True
 
 
 class BirthPlaceOf(FixedRelation):
-    relation = "dbpedia-owl:birthPlace"
+    relation = "dbo:birthPlace"
     reverse = True
 
 
 class ReleaseDateOf(FixedRelation):
-    relation = "dbpedia-owl:releaseDate"
+    relation = "dbo:releaseDate"
     reverse = True
 
 
 class StarsIn(FixedRelation):
-    relation = "dbpprop:starring"
+    relation = "dbo:starring"
     reverse = True
 
 
 class NumberOfEpisodesIn(FixedRelation):
-    relation = "dbpedia-owl:numberOfEpisodes"
+    relation = "dbo:numberOfEpisodes"
     reverse = True
 
 
 class ShowNameOf(FixedRelation):
-    relation = "dbpprop:showName"
+    relation = "dbp:showName"
     reverse = True
 
 
 class HasActor(FixedRelation):
-    relation = "dbpprop:starring"
+    relation = "dbo:starring"
 
 
 class CreatorOf(FixedRelation):
-    relation = "dbpprop:creator"
-    reverse = True
-
-
-class NameOf(FixedRelation):
-    relation = "foaf:name"
-    # relation = "dbpprop:name"
+    relation = "dbp:creator"
     reverse = True
 
 
 class DirectedBy(FixedRelation):
-    relation = "dbpedia-owl:director"
+    relation = "dbo:director"
 
 
 class DirectorOf(FixedRelation):
-    relation = "dbpedia-owl:director"
+    relation = "dbo:director"
     reverse = True
 
 
 class DurationOf(FixedRelation):
-    # DBpedia throws an error if the relation it's
-    # dbpedia-owl:Work/runtime so we expand the prefix
-    # by giving the whole URL.
     relation = "<http://dbpedia.org/ontology/Work/runtime>"
     reverse = True
 
 
 class HasAuthor(FixedRelation):
-    relation = "dbpedia-owl:author"
+    relation = "dbo:author"
 
 
 class AuthorOf(FixedRelation):
-    relation = "dbpedia-owl:author"
+    relation = "dbo:author"
     reverse = True
 
 
-class IsBook(FixedType):
-    fixedtype = "dbpedia-owl:Book"
-
-
 class LocationOf(FixedRelation):
-    relation = "dbpedia-owl:location"
+    relation = "dbo:location"
     reverse = True
